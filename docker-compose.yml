@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database Service
+  postgres:
+    image: postgres:15
+    container_name: running_tracker_db
+    environment:
+      POSTGRES_DB: running_tracker_dev
+      POSTGRES_USER: tracker
+      POSTGRES_PASSWORD: tracker
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U tracker -d running_tracker_dev"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - app_network
+
+  # FastAPI Application Service
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: running_tracker_api
+    environment:
+      # Database connection - uses service name 'postgres' as hostname
+      DATABASE_URL: postgresql://tracker:tracker@postgres:5432/running_tracker_dev
+      LOG_LEVEL: INFO
+      DEBUG: "False"
+      APP_NAME: Running Trainer API
+      API_VERSION: v1
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount source code for hot reload during development
+      - ./app:/app/app
+      # Mount logs directory
+      - ./logs:/app/logs
+      # Mount tests directory
+      - ./tests:/app/tests
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - app_network
+    restart: unless-stopped
+
+# Named volumes for data persistence
+volumes:
+  postgres_data:
+    driver: local
+
+# Network for service communication
+networks:
+  app_network:
+    driver: bridge
