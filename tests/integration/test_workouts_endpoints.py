@@ -223,3 +223,43 @@ class TestWorkoutsEndpoints:
             assert response.status_code == 201
             data = response.json()
             assert data["workout_type"] == workout_type.value
+
+    def test_create_workout_impossible_pace_range(self, client, db_session):
+        """Test POST with impossibly fast pace (below minimum allowed)."""
+        plan = create_test_plan(db_session)
+
+        workout_data = {
+            "name": "Impossible pace workout",
+            "workout_type": WorkoutType.SPEED.value,
+            "planned_distance": 5.0,
+            "target_pace_min_sec": 100,  # Too fast (below 180 sec/km minimum)
+            "target_pace_max_sec": 150   # Also too fast
+        }
+
+        response = client.post(
+            f"/api/v1/plans/{plan.id}/workouts",
+            json=workout_data
+        )
+
+        # Should fail validation
+        assert response.status_code == 422
+
+    def test_create_workout_impossibly_slow_pace(self, client, db_session):
+        """Test POST with impossibly slow pace (above maximum allowed)."""
+        plan = create_test_plan(db_session)
+
+        workout_data = {
+            "name": "Too slow workout",
+            "workout_type": WorkoutType.EASY.value,
+            "planned_distance": 5.0,
+            "target_pace_min_sec": 3500,  # Too slow (above 3000 sec/km maximum)
+            "target_pace_max_sec": 4000   # Way too slow
+        }
+
+        response = client.post(
+            f"/api/v1/plans/{plan.id}/workouts",
+            json=workout_data
+        )
+
+        # Should fail validation
+        assert response.status_code == 422

@@ -22,10 +22,10 @@ settings = get_settings()
 
 # Create test database URL
 # For testing, we'll use a separate test database
-# Replace 'running_trainer' with 'running_trainer_test' in the database name
+# Replace 'running_tracker_dev' with 'running_tracker_test' in the database name
 TEST_DATABASE_URL = settings.DATABASE_URL.replace(
-    "running_trainer",
-    "running_trainer_test"
+    "running_tracker_dev",
+    "running_tracker_test"
 )
 
 

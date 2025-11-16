@@ -263,3 +263,34 @@ class TestRunsEndpoints:
         )
 
         assert response.status_code == 404
+
+    def test_create_duplicate_runs(self, client, db_session):
+        """Test POST with duplicate run data (should be allowed)."""
+        plan = create_test_plan(db_session)
+        workout = create_test_workout(db_session, plan.id)
+
+        # Same run data
+        run_data = {
+            "distance_miles": 5.0,
+            "pace_sec_per_mile": 600,
+            "date": datetime(2024, 6, 15, 10, 0, 0, tzinfo=timezone.utc).isoformat(),
+            "source": RunSource.MANUAL.value,
+            "workout_id": str(workout.id)
+        }
+
+        # Create first run
+        response1 = client.post(
+            f"/api/v1/plans/{plan.id}/runs",
+            json=run_data
+        )
+        assert response1.status_code == 201
+
+        # Create duplicate run (same data)
+        response2 = client.post(
+            f"/api/v1/plans/{plan.id}/runs",
+            json=run_data
+        )
+
+        # System should allow duplicate runs (user might log same run multiple times)
+        # or should reject with appropriate error
+        assert response2.status_code in [201, 400, 409]

@@ -30,7 +30,9 @@
       "Bash(git init:*)",
       "Bash(git add:*)",
       "Bash(git commit:*)",
-      "Bash(gh:*)"
+      "Bash(gh:*)",
+      "Bash(docker volume:*)",
+      "Bash(timeout 10 curl:*)"
     ],
     "deny": [],
     "ask": []

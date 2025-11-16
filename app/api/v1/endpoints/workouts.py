@@ -78,6 +78,18 @@ async def create_workout(
 
     except NotFoundError as e:
         logger.warning(f"Plan not found: {plan_id}")
+        # Check if it's a plan not found error (vs other resources)
+        if e.details.get("resource_type") == "Plan":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Plan not found",
+                    "message": f"Training plan with ID '{plan_id}' does not exist.",
+                    "plan_id": str(plan_id),
+                    "hint": "To see all available plans, use: GET /api/v1/plans",
+                    "suggestion": "Make sure you're using a valid plan ID from the plans list."
+                }
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
@@ -155,6 +167,17 @@ async def list_workouts(
 
     except NotFoundError as e:
         logger.warning(f"Plan not found: {plan_id}")
+        # Check if it's a plan not found error
+        if e.details.get("resource_type") == "Plan":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Plan not found",
+                    "message": f"Training plan with ID '{plan_id}' does not exist.",
+                    "plan_id": str(plan_id),
+                    "hint": "To see all available plans, use: GET /api/v1/plans"
+                }
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
@@ -214,6 +237,28 @@ async def get_workout(
 
     except NotFoundError as e:
         logger.warning(f"Resource not found: {str(e)}")
+        # Provide helpful error message based on what wasn't found
+        if e.details.get("resource_type") == "Plan":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Plan not found",
+                    "message": f"Training plan with ID '{plan_id}' does not exist.",
+                    "plan_id": str(plan_id),
+                    "hint": "To see all available plans, use: GET /api/v1/plans"
+                }
+            )
+        elif e.details.get("resource_type") == "Workout":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Workout not found",
+                    "message": f"Workout with ID '{workout_id}' does not exist in plan '{plan_id}'.",
+                    "workout_id": str(workout_id),
+                    "plan_id": str(plan_id),
+                    "hint": f"To see all workouts for this plan, use: GET /api/v1/plans/{plan_id}/workouts"
+                }
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
@@ -283,6 +328,28 @@ async def update_workout(
 
     except NotFoundError as e:
         logger.warning(f"Resource not found: {str(e)}")
+        # Provide helpful error message based on what wasn't found
+        if e.details.get("resource_type") == "Plan":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Plan not found",
+                    "message": f"Training plan with ID '{plan_id}' does not exist.",
+                    "plan_id": str(plan_id),
+                    "hint": "To see all available plans, use: GET /api/v1/plans"
+                }
+            )
+        elif e.details.get("resource_type") == "Workout":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Workout not found",
+                    "message": f"Workout with ID '{workout_id}' does not exist in plan '{plan_id}'.",
+                    "workout_id": str(workout_id),
+                    "plan_id": str(plan_id),
+                    "hint": f"To see all workouts for this plan, use: GET /api/v1/plans/{plan_id}/workouts"
+                }
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)
@@ -341,6 +408,28 @@ async def delete_workout(
 
     except NotFoundError as e:
         logger.warning(f"Resource not found: {str(e)}")
+        # Provide helpful error message based on what wasn't found
+        if e.details.get("resource_type") == "Plan":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Plan not found",
+                    "message": f"Training plan with ID '{plan_id}' does not exist.",
+                    "plan_id": str(plan_id),
+                    "hint": "To see all available plans, use: GET /api/v1/plans"
+                }
+            )
+        elif e.details.get("resource_type") == "Workout":
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail={
+                    "error": "Workout not found",
+                    "message": f"Workout with ID '{workout_id}' does not exist in plan '{plan_id}'.",
+                    "workout_id": str(workout_id),
+                    "plan_id": str(plan_id),
+                    "hint": f"To see all workouts for this plan, use: GET /api/v1/plans/{plan_id}/workouts"
+                }
+            )
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail=str(e)

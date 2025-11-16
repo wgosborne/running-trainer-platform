@@ -237,3 +237,19 @@ class TestPlansEndpoints:
         response = client.delete(f"/api/v1/plans/{fake_id}")
 
         assert response.status_code == 404
+
+    def test_create_plan_extremely_long_name(self, client):
+        """Test POST /api/v1/plans with name exceeding max length."""
+        # Create a name longer than MAX_NAME_LENGTH (255 characters)
+        long_name = "A" * 300
+
+        plan_data = {
+            "name": long_name,
+            "start_date": str(date.today()),
+            "end_date": str(date.today() + timedelta(days=84))
+        }
+
+        response = client.post("/api/v1/plans", json=plan_data)
+
+        # Should fail validation
+        assert response.status_code == 422
