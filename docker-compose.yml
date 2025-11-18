@@ -50,9 +50,113 @@ services:
       - app_network
     restart: unless-stopped
 
+  # Auth Service
+  auth:
+    build:
+      context: ./services/auth
+      dockerfile: Dockerfile
+    container_name: auth_service
+    environment:
+      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+    ports:
+      - "8004:8000"
+    volumes:
+      # Mount source code for hot reload during development
+      - ./services/auth/app:/app
+      # Persist SQLite database
+      - auth_data:/app/data
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  # PDF Import Service
+  pdf:
+    build:
+      context: ./services/pdf
+      dockerfile: Dockerfile
+    container_name: pdf_import_service
+    environment:
+      RUNNING_TRAINER_URL: http://running-trainer:8000
+      LOG_LEVEL: INFO
+    ports:
+      - "8002:8000"
+    volumes:
+      # Mount source code for hot reload during development
+      - ./services/pdf/app:/app
+    depends_on:
+      - running-trainer
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  # Strava Sync Service
+  strava:
+    build:
+      context: ./services/strava
+      dockerfile: Dockerfile
+    container_name: strava_service
+    environment:
+      STRAVA_CLIENT_ID: ${STRAVA_CLIENT_ID:-}
+      STRAVA_CLIENT_SECRET: ${STRAVA_CLIENT_SECRET:-}
+      RUNNING_TRAINER_URL: http://running-trainer:8000
+      LOG_LEVEL: INFO
+    ports:
+      - "8003:8000"
+    volumes:
+      # Mount source code for hot reload during development
+      - ./services/strava/app:/app
+    depends_on:
+      - running-trainer
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  # API Gateway - Single entry point for all services
+  api-gateway:
+    build:
+      context: ./services/api-gateway
+      dockerfile: Dockerfile
+    container_name: api_gateway_service
+    environment:
+      RUNNING_TRAINER_URL: http://running-trainer:8000
+      AUTH_URL: http://auth:8000
+      PDF_URL: http://pdf:8000
+      STRAVA_URL: http://strava:8000
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount source code for hot reload during development
+      - ./services/api-gateway/app:/app
+    depends_on:
+      - running-trainer
+      - auth
+      - pdf
+      - strava
+    networks:
+      - app_network
+    restart: unless-stopped
+
+  # Frontend - React application
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: running_tracker_frontend
+    environment:
+      VITE_API_URL: http://api-gateway:8000
+    ports:
+      - "5173:80"
+    depends_on:
+      - api-gateway
+    networks:
+      - app_network
+    restart: unless-stopped
+
 # Named volumes for data persistence
 volumes:
   postgres_data:
+    driver: local
+  auth_data:
     driver: local
 
 # Network for service communication

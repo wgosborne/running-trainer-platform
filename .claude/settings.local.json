@@ -33,7 +33,8 @@
       "Bash(gh:*)",
       "Bash(docker volume:*)",
       "Bash(timeout 10 curl:*)",
-      "Bash(make:*)"
+      "Bash(make:*)",
+      "Bash(npm run dev:*)"
     ],
     "deny": [],
     "ask": []

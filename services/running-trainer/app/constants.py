@@ -131,7 +131,7 @@ class API_CONSTANTS:
 
     # API rate limiting
     RATE_LIMIT_READ_OPS: str = "100/minute"  # Read operations (GET)
-    RATE_LIMIT_WRITE_OPS: str = "30/minute"  # Write operations (POST, PUT, PATCH, DELETE)
+    RATE_LIMIT_WRITE_OPS: str = "100/minute"  # Write operations (POST, PUT, PATCH, DELETE) - increased for PDF imports
     RATE_LIMIT_STRICT: str = "10/minute"  # Very strict limit for sensitive operations
 
     # Request size limits
