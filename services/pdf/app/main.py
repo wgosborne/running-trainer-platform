@@ -131,6 +131,10 @@ async def import_pdf(
                     "scheduled_date": workout["scheduled_date"],
                 }
 
+                # Add notes (full description from PDF)
+                if workout.get("notes"):
+                    workout_data["notes"] = workout["notes"]
+
                 # Add pace range if available
                 if workout.get("target_pace_min_sec") and workout.get("target_pace_max_sec"):
                     workout_data["target_pace_min_sec"] = workout["target_pace_min_sec"]

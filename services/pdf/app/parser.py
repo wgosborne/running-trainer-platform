@@ -118,6 +118,10 @@ def classify_workout_type(text: str) -> str:
 
     Returns:
         Workout type string (must match backend enum: EASY, TEMPO, LONG, SPEED, RECOVERY, CROSS_TRAINING, REST)
+
+    Note:
+        - XT = Cross Train
+        - GHMP = Goal Half Marathon Pace (classified as TEMPO)
     """
     if not text:
         return "REST"
@@ -126,7 +130,7 @@ def classify_workout_type(text: str) -> str:
     text = ' '.join(text.split())
     text_lower = text.lower()
 
-    # Cross-training
+    # Cross-training (XT = Cross Train)
     if "xt" in text_lower or "cross" in text_lower:
         return "CROSS_TRAINING"
 
@@ -134,7 +138,8 @@ def classify_workout_type(text: str) -> str:
     if "off" in text_lower or text_lower.strip() == "":
         return "REST"
 
-    # Tempo run (check before easy because "tempo" workouts might contain "easy" in warm-up/cool-down)
+    # Tempo run (GHMP = Goal Half Marathon Pace)
+    # Check before easy because "tempo" workouts might contain "easy" in warm-up/cool-down
     if "tempo" in text_lower or "ghmp" in text_lower:
         return "TEMPO"
 
@@ -183,6 +188,9 @@ def parse_workout_cell(cell_text: str, scheduled_date: datetime) -> Optional[Dic
     if not cell_text or not cell_text.strip():
         return None
 
+    # Preserve original cell text for notes (before cleaning)
+    original_text = cell_text.strip()
+
     # Clean up cell text - join multi-line text and normalize spaces
     cell_text = ' '.join(cell_text.split())
 
@@ -211,7 +219,8 @@ def parse_workout_cell(cell_text: str, scheduled_date: datetime) -> Optional[Dic
         "name": name,
         "workout_type": workout_type,
         "planned_distance": distance,
-        "scheduled_date": scheduled_date.date().isoformat()
+        "scheduled_date": scheduled_date.date().isoformat(),
+        "notes": original_text  # Full description from PDF for that day
     }
 
 

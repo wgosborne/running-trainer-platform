@@ -43,44 +43,50 @@ export default function Login({ onLoginSuccess }: LoginProps) {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="bg-white p-8 rounded-lg shadow-md w-96">
-        <h1 className="text-3xl font-bold mb-6 text-center text-blue-600">
-          Running Tracker
-        </h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-spring-50 to-sky-50">
+      <div className="bg-white p-10 rounded-2xl shadow-2xl w-full max-w-md border-2 border-spring-200">
+        <div className="text-center mb-8">
+          <div className="text-6xl mb-3">🏃</div>
+          <h1 className="text-4xl font-bold text-spring-600 mb-2">
+            Running Tracker
+          </h1>
+          <p className="text-gray-600">Track your training, achieve your goals</p>
+        </div>
 
-        <h2 className="text-xl font-semibold mb-4 text-center">
-          {isLogin ? 'Login' : 'Register'}
+        <h2 className="text-2xl font-bold mb-6 text-center text-spring-700">
+          {isLogin ? 'Welcome Back!' : 'Create Account'}
         </h2>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label className="block text-sm font-medium mb-1">Email</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Email</label>
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500 transition-colors"
+              placeholder="your@email.com"
               required
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium mb-1">Password</label>
+            <label className="block text-sm font-semibold text-gray-700 mb-2">Password</label>
             <input
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500 transition-colors"
+              placeholder="••••••••"
               required
             />
           </div>
 
           {error && (
-            <div className={`text-sm p-2 rounded ${
+            <div className={`text-sm p-4 rounded-lg border-2 ${
               error.includes('successful')
-                ? 'bg-green-100 text-green-700'
-                : 'bg-red-100 text-red-700'
+                ? 'bg-spring-50 border-spring-400 text-spring-700'
+                : 'bg-coral-50 border-coral-400 text-coral-700'
             }`}>
               {error}
             </div>
@@ -89,19 +95,19 @@ export default function Login({ onLoginSuccess }: LoginProps) {
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+            className="w-full bg-gradient-to-r from-spring-500 to-spring-600 text-white py-3 rounded-lg font-semibold hover:from-spring-600 hover:to-spring-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
           >
             {loading ? 'Loading...' : isLogin ? 'Login' : 'Register'}
           </button>
         </form>
 
-        <div className="mt-4 text-center">
+        <div className="mt-6 text-center">
           <button
             onClick={() => {
               setIsLogin(!isLogin);
               setError('');
             }}
-            className="text-blue-600 hover:underline text-sm"
+            className="text-spring-600 hover:text-spring-700 font-semibold text-sm transition-colors"
           >
             {isLogin
               ? "Don't have an account? Register"

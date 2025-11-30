@@ -101,54 +101,56 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gradient-to-br from-spring-50 to-sky-50">
       <Header onNavigate={onNavigate} />
 
-      <div className="max-w-2xl mx-auto p-6">
+      <div className="max-w-3xl mx-auto p-6">
         <button
           onClick={() => onNavigate('dashboard')}
-          className="text-blue-600 hover:underline mb-4"
+          className="text-spring-600 hover:text-spring-700 font-semibold mb-4 flex items-center gap-2 transition-colors"
         >
-          ← Back to Dashboard
+          <span>←</span> Back to Dashboard
         </button>
 
-        <div className="bg-white p-8 rounded-lg shadow">
-          <h1 className="text-3xl font-bold text-gray-800 mb-6">
-            Import Training Plan from PDF
-          </h1>
-
-          <p className="text-gray-600 mb-6">
-            Upload a PDF training plan to automatically extract workouts and add
-            them to your selected plan.
-          </p>
+        <div className="bg-white p-10 rounded-2xl shadow-2xl border-2 border-spring-200">
+          <div className="text-center mb-8">
+            <div className="text-6xl mb-4">📄</div>
+            <h1 className="text-4xl font-bold text-spring-700 mb-3">
+              Import Training Plan
+            </h1>
+            <p className="text-gray-600 text-lg">
+              Upload a PDF training plan to automatically extract workouts and add
+              them to your selected plan.
+            </p>
+          </div>
 
           {error && (
-            <div className="bg-red-100 text-red-700 p-3 rounded mb-4">
+            <div className="bg-coral-50 border-2 border-coral-400 text-coral-700 p-4 rounded-lg mb-6">
               {error}
             </div>
           )}
 
           {success && (
-            <div className="bg-green-100 text-green-700 p-3 rounded mb-4">
+            <div className="bg-spring-50 border-2 border-spring-400 text-spring-700 p-4 rounded-lg mb-6">
               {success}
             </div>
           )}
 
           {progress && (
-            <div className="bg-blue-100 text-blue-700 p-3 rounded mb-4">
+            <div className="bg-sky-50 border-2 border-sky-400 text-sky-700 p-4 rounded-lg mb-6">
               {progress}
             </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Select Training Plan
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📋 Select Training Plan
               </label>
               <select
                 value={selectedPlanId}
                 onChange={(e) => handlePlanChange(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500"
                 required
               >
                 <option value="">-- Select a plan --</option>
@@ -159,12 +161,12 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
                 ))}
               </select>
               {plans.length === 0 && (
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-sm text-gray-600 mt-2 bg-sunshine-50 p-3 rounded-lg border-l-4 border-sunshine-400">
                   No plans available.{' '}
                   <button
                     type="button"
                     onClick={() => onNavigate('dashboard')}
-                    className="text-blue-600 hover:underline"
+                    className="text-spring-600 hover:text-spring-700 font-semibold"
                   >
                     Create a plan first
                   </button>
@@ -173,36 +175,36 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Plan Start Date
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📅 Plan Start Date
               </label>
               <input
                 type="date"
                 value={planStartDate}
                 onChange={(e) => setPlanStartDate(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500"
                 required
               />
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-sm text-gray-600 mt-2 bg-sky-50 p-3 rounded-lg border-l-4 border-sky-400">
                 This should match the first week in your PDF (e.g., the Monday of "21-Jul")
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-2">
-                Upload PDF File
+              <label className="block text-sm font-semibold text-gray-700 mb-2">
+                📎 Upload PDF File
               </label>
               <input
                 id="pdf-file"
                 type="file"
                 accept=".pdf"
                 onChange={handleFileChange}
-                className="w-full px-3 py-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:bg-spring-100 file:text-spring-700 file:font-semibold hover:file:bg-spring-200"
                 required
               />
               {file && (
-                <p className="text-sm text-gray-600 mt-1">
-                  Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
+                <p className="text-sm text-gray-700 mt-2 bg-spring-50 p-3 rounded-lg border-l-4 border-spring-400">
+                  ✓ Selected: <span className="font-semibold">{file.name}</span> ({(file.size / 1024).toFixed(1)} KB)
                 </p>
               )}
             </div>
@@ -210,9 +212,9 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
             <button
               type="submit"
               disabled={loading || !file || !selectedPlanId || !planStartDate}
-              className="w-full bg-blue-600 text-white py-3 rounded hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed"
+              className="w-full bg-gradient-to-r from-spring-500 to-spring-600 text-white py-4 rounded-lg font-bold text-lg hover:from-spring-600 hover:to-spring-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-all shadow-md hover:shadow-lg"
             >
-              {loading ? 'Importing...' : 'Import PDF'}
+              {loading ? '⏳ Importing...' : '📤 Import PDF'}
             </button>
           </form>
 
@@ -220,9 +222,10 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
             <div className="mt-6 text-center">
               <button
                 onClick={() => onNavigate('plan-detail', selectedPlanId)}
-                className="text-blue-600 hover:underline"
+                className="text-spring-600 hover:text-spring-700 font-bold text-lg flex items-center justify-center gap-2 mx-auto transition-colors"
               >
-                View plan details →
+                <span>View plan details</span>
+                <span>→</span>
               </button>
             </div>
           )}
