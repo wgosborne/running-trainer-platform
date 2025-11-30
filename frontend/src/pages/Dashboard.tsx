@@ -6,7 +6,7 @@ import Header from '../components/Header';
 import { CreatePlanRequest } from '../types';
 
 interface DashboardProps {
-  onNavigate: (page: string, planId?: number) => void;
+  onNavigate: (page: string, planId?: string) => void;
 }
 
 export default function Dashboard({ onNavigate }: DashboardProps) {

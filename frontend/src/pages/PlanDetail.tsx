@@ -8,8 +8,8 @@ import Calendar from '../components/Calendar';
 import WorkoutDetailModal from '../components/WorkoutDetailModal';
 
 interface PlanDetailProps {
-  planId: number;
-  onNavigate: (page: string, planId?: number) => void;
+  planId: string;
+  onNavigate: (page: string, planId?: string) => void;
 }
 
 export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
@@ -64,8 +64,8 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
 
     try {
       await runsApi.create(
+        planId,
         {
-          plan_id: planId,
           distance_miles: parseFloat(newRun.distance_miles),
           pace_sec_per_mile: parseInt(newRun.pace_sec_per_mile),
           date: newRun.date,

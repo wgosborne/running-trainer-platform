@@ -67,10 +67,9 @@ class WorkoutCreate(BaseModel):
     @classmethod
     def validate_distance(cls, v: float) -> float:
         """Validate planned distance is positive and within range."""
-        if v < WORKOUT_VALIDATION.MIN_DISTANCE:
-            raise ValueError(
-                f"Planned distance must be at least {WORKOUT_VALIDATION.MIN_DISTANCE} miles"
-            )
+        # Allow 0 distance (will be validated in model_validator based on workout type)
+        if v < 0:
+            raise ValueError("Planned distance cannot be negative")
         if v > WORKOUT_VALIDATION.MAX_DISTANCE:
             raise ValueError(
                 f"Planned distance cannot exceed {WORKOUT_VALIDATION.MAX_DISTANCE} miles"
@@ -79,7 +78,15 @@ class WorkoutCreate(BaseModel):
 
     @model_validator(mode="after")
     def validate_pace_range(self) -> "WorkoutCreate":
-        """Validate pace range if provided."""
+        """Validate pace range and distance based on workout type."""
+        # Validate distance based on workout type
+        # CROSS_TRAINING and REST can have 0 distance
+        if self.workout_type not in [WorkoutType.CROSS_TRAINING.value, WorkoutType.REST.value]:
+            if self.planned_distance < WORKOUT_VALIDATION.MIN_DISTANCE:
+                raise ValueError(
+                    f"Planned distance must be at least {WORKOUT_VALIDATION.MIN_DISTANCE} miles for {self.workout_type} workouts"
+                )
+
         min_pace = self.target_pace_min_sec
         max_pace = self.target_pace_max_sec
 

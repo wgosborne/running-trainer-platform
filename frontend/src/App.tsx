@@ -11,9 +11,9 @@ type Page = 'login' | 'dashboard' | 'plan-detail' | 'import-pdf' | 'strava-auth'
 function App() {
   const user = useStore((state) => state.user);
   const [currentPage, setCurrentPage] = useState<Page>('login');
-  const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
+  const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
-  const handleNavigate = (page: string, planId?: number) => {
+  const handleNavigate = (page: string, planId?: string) => {
     setCurrentPage(page as Page);
     if (planId !== undefined) {
       setSelectedPlanId(planId);

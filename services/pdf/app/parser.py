@@ -61,47 +61,62 @@ def parse_distance_from_text(text: str) -> Optional[float]:
     Returns:
         Distance in miles or None
     """
-    if not text or text.strip().upper() in ["XT", "OFF", "PARTAY"]:
+    if not text or text.strip().upper() in ["OFF", "PARTAY"]:
+        return None
+
+    # XT (cross-training) has no distance
+    if text.strip().upper() == "XT" or text.strip().upper().startswith("XT +"):
         return None
 
     try:
         # Clean up the text - remove newlines and normalize spaces
         text = ' '.join(text.split())
 
+        # Strip out "+ strides" and similar additions before parsing
+        text = re.sub(r'\s*\+\s*strides.*$', '', text, flags=re.IGNORECASE)
+        text = re.sub(r'\s*\+\s*strength.*$', '', text, flags=re.IGNORECASE)
+
         # Look for "to X miles" pattern (e.g., "cool down to 6 miles")
         to_miles_match = re.search(r'to\s+(\d+\.?\d*)\s*(?:miles?|mi)', text, re.IGNORECASE)
         if to_miles_match:
             distance = float(to_miles_match.group(1))
-            if 0.5 <= distance <= 25:
+            if 0.5 <= distance <= 50:
                 return distance
 
         # Look for "X miles total" pattern
         total_miles_match = re.search(r'(\d+\.?\d*)\s*(?:miles?|mi)?\s+total', text, re.IGNORECASE)
         if total_miles_match:
             distance = float(total_miles_match.group(1))
-            if 0.5 <= distance <= 25:
+            if 0.5 <= distance <= 50:
                 return distance
 
         # Look for "X miles" or "X mi" pattern anywhere
         miles_match = re.search(r'(\d+\.?\d*)\s*(?:miles?|mi)\b', text, re.IGNORECASE)
         if miles_match:
             distance = float(miles_match.group(1))
-            if 0.5 <= distance <= 25:
+            if 0.5 <= distance <= 50:
                 return distance
 
         # If text starts with just a number (like "3.5 easy" or "5"), use that
         start_match = re.match(r'^(\d+\.?\d*)\s+', text)
         if start_match:
             distance = float(start_match.group(1))
-            if 0.5 <= distance <= 25:
+            if 0.5 <= distance <= 50:
+                return distance
+
+        # Handle bare numbers (like "7" or "4.5")
+        bare_number_match = re.match(r'^(\d+\.?\d*)$', text.strip())
+        if bare_number_match:
+            distance = float(bare_number_match.group(1))
+            if 0.5 <= distance <= 50:
                 return distance
 
         # Last resort: find the first number in the text
         match = re.search(r'(\d+\.?\d*)', text)
         if match:
             distance = float(match.group(1))
-            # Sanity check: typical daily run is 1-20 miles
-            if 0.5 <= distance <= 25:
+            # Sanity check: typical daily run is 1-50 miles
+            if 0.5 <= distance <= 50:
                 return distance
     except (ValueError, AttributeError):
         pass
@@ -109,12 +124,13 @@ def parse_distance_from_text(text: str) -> Optional[float]:
     return None
 
 
-def classify_workout_type(text: str) -> str:
+def classify_workout_type(text: str, is_complex_workout: bool = False) -> str:
     """
     Classify workout type based on description.
 
     Args:
         text: Workout description
+        is_complex_workout: True if this is a long/complex workout (>30 chars)
 
     Returns:
         Workout type string (must match backend enum: EASY, TEMPO, LONG, SPEED, RECOVERY, CROSS_TRAINING, REST)
@@ -122,6 +138,7 @@ def classify_workout_type(text: str) -> str:
     Note:
         - XT = Cross Train
         - GHMP = Goal Half Marathon Pace (classified as TEMPO)
+        - Complex workouts: If contains "tempo" -> TEMPO, else -> SPEED
     """
     if not text:
         return "REST"
@@ -134,9 +151,17 @@ def classify_workout_type(text: str) -> str:
     if "xt" in text_lower or "cross" in text_lower:
         return "CROSS_TRAINING"
 
-    # Rest day
-    if "off" in text_lower or text_lower.strip() == "":
+    # Rest day - check for "off" as a standalone word, not part of "mins off"
+    # Match "off" only if it's the entire text or surrounded by non-letter characters
+    if text_lower.strip() == "off" or text_lower == "":
         return "REST"
+
+    # For complex workouts, check for tempo first, otherwise it's speed work
+    if is_complex_workout:
+        if "tempo" in text_lower or "ghmp" in text_lower:
+            return "TEMPO"
+        else:
+            return "SPEED"
 
     # Tempo run (GHMP = Goal Half Marathon Pace)
     # Check before easy because "tempo" workouts might contain "easy" in warm-up/cool-down
@@ -194,26 +219,61 @@ def parse_workout_cell(cell_text: str, scheduled_date: datetime) -> Optional[Dic
     # Clean up cell text - join multi-line text and normalize spaces
     cell_text = ' '.join(cell_text.split())
 
-    # Skip rest days and cross-training (for now)
+    # Handle Race Day specially
+    if "race day" in cell_text.lower():
+        return {
+            "name": "Race Day",
+            "workout_type": "SPEED",
+            "planned_distance": 13.1,  # Half marathon
+            "scheduled_date": scheduled_date.date().isoformat(),
+            "notes": original_text,
+            "is_race": True  # Mark as race for special frontend display
+        }
+
+    # Skip rest days (OFF, PARTAY)
     if cell_text.upper() in ["OFF", "PARTAY"]:
         return None
 
-    # Skip pure cross-training for now (no distance to track)
+    # Handle Cross Training (XT)
     if cell_text.upper() == "XT" or cell_text.upper().startswith("XT +"):
-        return None
+        return {
+            "name": "Cross Train",
+            "workout_type": "CROSS_TRAINING",
+            "planned_distance": 0,
+            "scheduled_date": scheduled_date.date().isoformat(),
+            "notes": original_text
+        }
 
     # Extract distance
     distance = parse_distance_from_text(cell_text)
+
+    # Handle bare numbers (like "7" or "4.5") - treat as "X easy"
+    bare_number_match = re.match(r'^(\d+\.?\d*)$', cell_text.strip())
+    if bare_number_match and distance:
+        return {
+            "name": f"{distance} easy",
+            "workout_type": "EASY",
+            "planned_distance": distance,
+            "scheduled_date": scheduled_date.date().isoformat(),
+            "notes": original_text
+        }
 
     # Skip if no distance found (e.g., pure strength training)
     if distance is None:
         return None
 
-    # Classify workout type
-    workout_type = classify_workout_type(cell_text)
+    # Determine if this is a complex workout (>30 chars)
+    is_complex = len(cell_text) > 30
 
-    # Create workout name (truncate if too long)
-    name = cell_text[:100] if len(cell_text) <= 100 else cell_text[:97] + "..."
+    # Classify workout type
+    workout_type = classify_workout_type(cell_text, is_complex_workout=is_complex)
+
+    # Create workout name
+    if is_complex:
+        name = "Workout"
+    else:
+        # For simple workouts, use the text as-is (up to 100 chars)
+        name = cell_text[:100] if len(cell_text) <= 100 else cell_text[:97] + "..."
 
     return {
         "name": name,
@@ -236,6 +296,8 @@ def extract_workouts_from_pdf(pdf_bytes: bytes, plan_start_date: datetime) -> Li
         List of workout dictionaries
     """
     workouts = []
+    # Store day column indices across pages (for tables that span multiple pages)
+    saved_day_col_indices = None
 
     try:
         with pdfplumber.open(BytesIO(pdf_bytes)) as pdf:
@@ -256,25 +318,41 @@ def extract_workouts_from_pdf(pdf_bytes: bytes, plan_start_date: datetime) -> Li
                     logger.info(f"Processing table {table_num + 1} with {len(table)} rows")
 
                     # Skip empty tables
-                    if not table or len(table) < 2:
+                    if not table or len(table) < 1:
                         continue
 
-                    # Get header row (assumed to be first row)
-                    header = table[0]
-                    logger.debug(f"Header: {header}")
-
-                    # Find day columns (Monday-Sunday)
+                    # Try to find header row and day columns
                     day_col_indices = {}
-                    for idx, col_name in enumerate(header):
-                        if col_name:
-                            col_lower = col_name.lower().strip()
-                            if col_lower in DAY_COLUMNS:
-                                day_col_indices[col_lower] = idx
+                    data_start_row = 0
 
-                    logger.info(f"Found {len(day_col_indices)} day columns: {list(day_col_indices.keys())}")
+                    # Check if first row is a header
+                    if len(table) > 0:
+                        header = table[0]
+                        logger.debug(f"Header: {header}")
+
+                        # Find day columns (Monday-Sunday)
+                        for idx, col_name in enumerate(header):
+                            if col_name:
+                                col_lower = col_name.lower().strip()
+                                if col_lower in DAY_COLUMNS:
+                                    day_col_indices[col_lower] = idx
+
+                        if day_col_indices:
+                            logger.info(f"Found {len(day_col_indices)} day columns: {list(day_col_indices.keys())}")
+                            saved_day_col_indices = day_col_indices
+                            data_start_row = 1
+                        else:
+                            # No header found, use saved indices from previous page
+                            if saved_day_col_indices:
+                                logger.info(f"Using saved day columns from previous page")
+                                day_col_indices = saved_day_col_indices
+                                data_start_row = 0
+                            else:
+                                logger.warning(f"No day columns found and no saved indices")
+                                continue
 
                     # Process data rows
-                    for row_num, row in enumerate(table[1:], start=1):
+                    for row_num, row in enumerate(table[data_start_row:], start=data_start_row):
                         if not row or len(row) == 0:
                             continue
 

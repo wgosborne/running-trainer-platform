@@ -4,7 +4,7 @@ import { useStore } from '../store';
 import Header from '../components/Header';
 
 interface ImportPDFProps {
-  onNavigate: (page: string, planId?: number) => void;
+  onNavigate: (page: string, planId?: string) => void;
 }
 
 export default function ImportPDF({ onNavigate }: ImportPDFProps) {

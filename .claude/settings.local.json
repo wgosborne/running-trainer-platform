@@ -34,7 +34,9 @@
       "Bash(docker volume:*)",
       "Bash(timeout 10 curl:*)",
       "Bash(make:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(docker exec:*)",
+      "Bash(docker cp:*)"
     ],
     "deny": [],
     "ask": []

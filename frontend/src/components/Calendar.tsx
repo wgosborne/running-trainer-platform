@@ -109,6 +109,11 @@ export default function Calendar({
   };
 
   const getWorkoutColorClass = (workout: Workout, hasRun: boolean) => {
+    // Special styling for Race Day
+    if (workout.name === 'Race Day') {
+      return 'bg-gradient-to-br from-yellow-300 to-yellow-500 text-yellow-900 border-yellow-600 border-4 font-bold shadow-xl';
+    }
+
     if (hasRun) {
       return 'bg-spring-500 text-white border-spring-600';
     }
@@ -190,16 +195,29 @@ export default function Calendar({
                             ${getWorkoutColorClass(day.workout, day.hasRun)}
                           `}
                         >
-                          <div className="text-xs font-semibold mb-1">
-                            {day.workout.workout_type}
-                          </div>
-                          <div className="text-xs">
-                            {day.workout.planned_distance} mi
-                          </div>
-                          {day.hasRun && (
-                            <div className="text-xs mt-1 font-bold">
-                              ✓ Completed
-                            </div>
+                          {day.workout.name === 'Race Day' ? (
+                            <>
+                              <div className="text-sm font-bold mb-1 flex items-center">
+                                🏁 {day.workout.name}
+                              </div>
+                              <div className="text-xs">
+                                {day.workout.planned_distance} mi
+                              </div>
+                            </>
+                          ) : (
+                            <>
+                              <div className="text-xs font-semibold mb-1">
+                                {day.workout.workout_type}
+                              </div>
+                              <div className="text-xs">
+                                {day.workout.planned_distance} mi
+                              </div>
+                              {day.hasRun && (
+                                <div className="text-xs mt-1 font-bold">
+                                  ✓ Completed
+                                </div>
+                              )}
+                            </>
                           )}
                         </button>
                       )}

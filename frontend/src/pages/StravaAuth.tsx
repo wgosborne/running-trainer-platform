@@ -15,7 +15,7 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [message, setMessage] = useState('');
-  const [selectedPlanId, setSelectedPlanId] = useState<number>(0);
+  const [selectedPlanId, setSelectedPlanId] = useState<string>('');
 
   useEffect(() => {
     // Check if we're coming back from Strava with a code
@@ -26,7 +26,7 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
       handleCallback(code);
     }
 
-    if (plans.length > 0 && selectedPlanId === 0) {
+    if (plans.length > 0 && selectedPlanId === '') {
       setSelectedPlanId(plans[0].id);
     }
   }, []);
@@ -70,7 +70,7 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
   };
 
   const handleSync = async () => {
-    if (!user?.token || selectedPlanId === 0) {
+    if (!user?.token || selectedPlanId === '') {
       setError('Please select a plan');
       return;
     }
@@ -170,10 +170,10 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
                 </label>
                 <select
                   value={selectedPlanId}
-                  onChange={(e) => setSelectedPlanId(Number(e.target.value))}
+                  onChange={(e) => setSelectedPlanId(e.target.value)}
                   className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500"
                 >
-                  <option value={0}>-- Select a plan --</option>
+                  <option value={''}>-- Select a plan --</option>
                   {plans.map((plan) => (
                     <option key={plan.id} value={plan.id}>
                       {plan.name}
@@ -195,7 +195,7 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
 
               <button
                 onClick={handleSync}
-                disabled={loading || selectedPlanId === 0}
+                disabled={loading || selectedPlanId === ''}
                 className="bg-spring-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-spring-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-md"
               >
                 {loading ? '⏳ Syncing...' : '🔄 Sync Now'}

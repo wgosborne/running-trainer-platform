@@ -256,10 +256,10 @@ export const strava = {
     return response.json();
   },
 
-  async sync(userId: string, planId: number, token: string): Promise<{
+  async sync(userId: string, planId: string, token: string): Promise<{
     status: string;
     runs_imported: number;
-    plan_id: number;
+    plan_id: string;
   }> {
     const response = await fetch(
       `${API_URL}/strava/sync?user_id=${userId}&plan_id=${planId}`,
