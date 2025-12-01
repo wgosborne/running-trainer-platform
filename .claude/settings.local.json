@@ -36,7 +36,9 @@
       "Bash(make:*)",
       "Bash(npm run dev:*)",
       "Bash(docker exec:*)",
-      "Bash(docker cp:*)"
+      "Bash(docker cp:*)",
+      "Bash(findstr:*)",
+      "Bash(docker --version:*)"
     ],
     "deny": [],
     "ask": []

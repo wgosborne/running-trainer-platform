@@ -18,14 +18,15 @@ logger = logging.getLogger(__name__)
 app = FastAPI(title="Running Tracker API Gateway")
 
 # Configure CORS
+# Load allowed origins from environment variable, or use defaults
+allowed_origins = os.getenv(
+    "ALLOWED_ORIGINS",
+    "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5175,http://127.0.0.1:5175"
+).split(",")
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[
-        "http://localhost:5173",  # Frontend development server
-        "http://127.0.0.1:5173",
-        "http://localhost:5175",  # Alternative frontend port
-        "http://127.0.0.1:5175",
-    ],
+    allow_origins=allowed_origins,
     allow_credentials=True,
     allow_methods=["*"],  # Allow all methods (GET, POST, PUT, DELETE, OPTIONS, etc.)
     allow_headers=["*"],  # Allow all headers

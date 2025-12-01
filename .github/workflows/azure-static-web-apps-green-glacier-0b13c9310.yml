@@ -28,6 +28,8 @@ jobs:
 
       - name: Build Vite app
         working-directory: frontend
+        env:
+          VITE_API_URL: ${{ secrets.VITE_API_URL }}
         run: npm run build
 
       - name: Deploy to Azure Static Web Apps

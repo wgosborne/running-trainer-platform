@@ -1,0 +1,245 @@
+name: Deploy Backend to Azure Container Apps
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: runningtracker
+  RESOURCE_GROUP: running-tracker-rg
+  LOCATION: eastus
+  CONTAINER_APP_ENVIRONMENT: running-tracker-env
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Login to Azure Container Registry
+        run: |
+          az acr login --name ${{ env.AZURE_CONTAINER_REGISTRY }}
+
+      - name: Build and push API Gateway
+        run: |
+          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/api-gateway:${{ github.sha }} \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/api-gateway:latest \
+            ./services/api-gateway
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/api-gateway:${{ github.sha }}
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/api-gateway:latest
+
+      - name: Build and push Auth Service
+        run: |
+          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/auth:${{ github.sha }} \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/auth:latest \
+            ./services/auth
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/auth:${{ github.sha }}
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/auth:latest
+
+      - name: Build and push Running Trainer Service
+        run: |
+          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/running-trainer:${{ github.sha }} \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/running-trainer:latest \
+            ./services/running-trainer
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/running-trainer:${{ github.sha }}
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/running-trainer:latest
+
+      - name: Build and push PDF Service
+        run: |
+          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/pdf:${{ github.sha }} \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/pdf:latest \
+            ./services/pdf
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/pdf:${{ github.sha }}
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/pdf:latest
+
+      - name: Build and push Strava Service
+        run: |
+          docker build -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/strava:${{ github.sha }} \
+            -t ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/strava:latest \
+            ./services/strava
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/strava:${{ github.sha }}
+          docker push ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/strava:latest
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Azure Login
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # Deploy Auth Service (no database dependency)
+      - name: Deploy Auth Service
+        run: |
+          az containerapp update \
+            --name auth-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/auth:${{ github.sha }} \
+            --set-env-vars \
+              JWT_SECRET=secretref:jwt-secret || \
+          az containerapp create \
+            --name auth-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENVIRONMENT }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/auth:${{ github.sha }} \
+            --target-port 8000 \
+            --ingress internal \
+            --secrets jwt-secret=${{ secrets.JWT_SECRET }} \
+            --env-vars JWT_SECRET=secretref:jwt-secret \
+            --min-replicas 1 \
+            --max-replicas 3 \
+            --cpu 0.5 \
+            --memory 1Gi \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+
+      # Deploy Running Trainer Service
+      - name: Deploy Running Trainer Service
+        run: |
+          az containerapp update \
+            --name running-trainer-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/running-trainer:${{ github.sha }} \
+            --set-env-vars \
+              DATABASE_URL=secretref:database-url \
+              LOG_LEVEL=INFO \
+              DEBUG=False \
+              APP_NAME="Running Trainer API" \
+              API_VERSION=v1 || \
+          az containerapp create \
+            --name running-trainer-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENVIRONMENT }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/running-trainer:${{ github.sha }} \
+            --target-port 8000 \
+            --ingress internal \
+            --secrets database-url="${{ secrets.DATABASE_URL }}" \
+            --env-vars \
+              DATABASE_URL=secretref:database-url \
+              LOG_LEVEL=INFO \
+              DEBUG=False \
+              APP_NAME="Running Trainer API" \
+              API_VERSION=v1 \
+            --min-replicas 1 \
+            --max-replicas 5 \
+            --cpu 0.5 \
+            --memory 1Gi \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+
+      # Deploy PDF Service
+      - name: Deploy PDF Service
+        run: |
+          az containerapp update \
+            --name pdf-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/pdf:${{ github.sha }} \
+            --set-env-vars \
+              RUNNING_TRAINER_URL=http://running-trainer-service \
+              LOG_LEVEL=INFO || \
+          az containerapp create \
+            --name pdf-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENVIRONMENT }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/pdf:${{ github.sha }} \
+            --target-port 8000 \
+            --ingress internal \
+            --env-vars \
+              RUNNING_TRAINER_URL=http://running-trainer-service \
+              LOG_LEVEL=INFO \
+            --min-replicas 1 \
+            --max-replicas 3 \
+            --cpu 0.5 \
+            --memory 1Gi \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+
+      # Deploy Strava Service
+      - name: Deploy Strava Service
+        run: |
+          az containerapp update \
+            --name strava-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/strava:${{ github.sha }} \
+            --set-env-vars \
+              STRAVA_CLIENT_ID=secretref:strava-client-id \
+              STRAVA_CLIENT_SECRET=secretref:strava-client-secret \
+              RUNNING_TRAINER_URL=http://running-trainer-service \
+              LOG_LEVEL=INFO || \
+          az containerapp create \
+            --name strava-service \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENVIRONMENT }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/strava:${{ github.sha }} \
+            --target-port 8000 \
+            --ingress internal \
+            --secrets \
+              strava-client-id="${{ secrets.STRAVA_CLIENT_ID }}" \
+              strava-client-secret="${{ secrets.STRAVA_CLIENT_SECRET }}" \
+            --env-vars \
+              STRAVA_CLIENT_ID=secretref:strava-client-id \
+              STRAVA_CLIENT_SECRET=secretref:strava-client-secret \
+              RUNNING_TRAINER_URL=http://running-trainer-service \
+              LOG_LEVEL=INFO \
+            --min-replicas 0 \
+            --max-replicas 2 \
+            --cpu 0.5 \
+            --memory 1Gi \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+
+      # Deploy API Gateway (public-facing)
+      - name: Deploy API Gateway
+        run: |
+          az containerapp update \
+            --name api-gateway \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/api-gateway:${{ github.sha }} \
+            --set-env-vars \
+              RUNNING_TRAINER_URL=http://running-trainer-service \
+              AUTH_URL=http://auth-service \
+              PDF_URL=http://pdf-service \
+              STRAVA_URL=http://strava-service || \
+          az containerapp create \
+            --name api-gateway \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --environment ${{ env.CONTAINER_APP_ENVIRONMENT }} \
+            --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/api-gateway:${{ github.sha }} \
+            --target-port 8000 \
+            --ingress external \
+            --env-vars \
+              RUNNING_TRAINER_URL=http://running-trainer-service \
+              AUTH_URL=http://auth-service \
+              PDF_URL=http://pdf-service \
+              STRAVA_URL=http://strava-service \
+            --min-replicas 1 \
+            --max-replicas 5 \
+            --cpu 0.5 \
+            --memory 1Gi \
+            --registry-server ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io
+
+      - name: Get API Gateway URL
+        run: |
+          GATEWAY_URL=$(az containerapp show \
+            --name api-gateway \
+            --resource-group ${{ env.RESOURCE_GROUP }} \
+            --query properties.configuration.ingress.fqdn \
+            -o tsv)
+          echo "API Gateway URL: https://$GATEWAY_URL"
+          echo "GATEWAY_URL=https://$GATEWAY_URL" >> $GITHUB_ENV
