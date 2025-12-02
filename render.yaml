@@ -10,11 +10,9 @@ services:
     startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
     healthCheckPath: /health
     envVars:
-      # Database connection
+      # Database connection (set manually in Render dashboard)
       - key: DATABASE_URL
-        fromDatabase:
-          name: running_plan_tracker
-          property: connectionString
+        sync: false  # Managed manually in Render dashboard
 
       # Application configuration
       - key: APP_NAME
