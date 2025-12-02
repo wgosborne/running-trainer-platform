@@ -38,7 +38,10 @@
       "Bash(docker exec:*)",
       "Bash(docker cp:*)",
       "Bash(findstr:*)",
-      "Bash(docker --version:*)"
+      "Bash(docker --version:*)",
+      "Bash(docker-compose build:*)",
+      "Bash(docker logs:*)",
+      "Bash(git check-ignore:*)"
     ],
     "deny": [],
     "ask": []
