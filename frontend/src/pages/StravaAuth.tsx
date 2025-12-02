@@ -70,7 +70,7 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
   };
 
   const handleSync = async () => {
-    if (!user?.token || selectedPlanId === '') {
+    if (selectedPlanId === '') {  // Removed !user?.token check
       setError('Please select a plan');
       return;
     }
@@ -80,7 +80,11 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
     setMessage('Syncing runs from Strava...');
 
     try {
-      const result = await strava.sync(user.id.toString(), selectedPlanId, user.token);
+      const result = await strava.sync(
+        user?.id.toString() || '1',  // Default user ID if not available
+        selectedPlanId
+        // user.token  // Removed token parameter
+      );
       setMessage(`✓ Successfully synced ${result.runs_imported} runs from Strava!`);
     } catch (err: any) {
       setError(err.message || 'Failed to sync runs. Make sure you have authorized Strava first.');

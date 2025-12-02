@@ -3,10 +3,10 @@
  */
 
 import {
-  LoginRequest,
-  RegisterRequest,
-  AuthResponse,
-  RegisterResponse,
+  // LoginRequest,  // Auth commented out
+  // RegisterRequest,  // Auth commented out
+  // AuthResponse,  // Auth commented out
+  // RegisterResponse,  // Auth commented out
   Plan,
   Run,
   Workout,
@@ -28,54 +28,52 @@ class APIError extends Error {
 }
 
 /**
- * Authentication API
+ * Authentication API - COMMENTED OUT FOR EASIER DEPLOYMENT
  */
-export const auth = {
-  async register(data: RegisterRequest): Promise<RegisterResponse> {
-    const response = await fetch(`${API_URL}/auth/register`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: data.email,
-        password: data.password,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new APIError(response.status, error || 'Registration failed');
-    }
-
-    return response.json();
-  },
-
-  async login(data: LoginRequest): Promise<AuthResponse> {
-    const response = await fetch(`${API_URL}/auth/login`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        email: data.email,
-        password: data.password,
-      }),
-    });
-
-    if (!response.ok) {
-      const error = await response.text();
-      throw new APIError(response.status, error || 'Login failed');
-    }
-
-    return response.json();
-  },
-};
+// export const auth = {
+//   async register(data: RegisterRequest): Promise<RegisterResponse> {
+//     const response = await fetch(`${API_URL}/auth/register`, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({
+//         email: data.email,
+//         password: data.password,
+//       }),
+//     });
+//
+//     if (!response.ok) {
+//       const error = await response.text();
+//       throw new APIError(response.status, error || 'Registration failed');
+//     }
+//
+//     return response.json();
+//   },
+//
+//   async login(data: LoginRequest): Promise<AuthResponse> {
+//     const response = await fetch(`${API_URL}/auth/login`, {
+//       method: 'POST',
+//       headers: { 'Content-Type': 'application/json' },
+//       body: JSON.stringify({
+//         email: data.email,
+//         password: data.password,
+//       }),
+//     });
+//
+//     if (!response.ok) {
+//       const error = await response.text();
+//       throw new APIError(response.status, error || 'Login failed');
+//     }
+//
+//     return response.json();
+//   },
+// };
 
 /**
- * Plans API
+ * Plans API - Auth tokens removed for easier deployment
  */
 export const plans = {
-  async getAll(token: string): Promise<Plan[]> {
-    const response = await fetch(`${API_URL}/plans`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  async getAll(): Promise<Plan[]> {  // Removed token parameter
+    const response = await fetch(`${API_URL}/plans`);  // Removed Authorization header
 
     if (!response.ok) {
       throw new APIError(response.status, 'Failed to fetch plans');
@@ -84,10 +82,8 @@ export const plans = {
     return response.json();
   },
 
-  async getOne(id: string, token: string): Promise<Plan> {
-    const response = await fetch(`${API_URL}/plans/${id}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  async getOne(id: string): Promise<Plan> {  // Removed token parameter
+    const response = await fetch(`${API_URL}/plans/${id}`);  // Removed Authorization header
 
     if (!response.ok) {
       throw new APIError(response.status, 'Failed to fetch plan');
@@ -96,12 +92,12 @@ export const plans = {
     return response.json();
   },
 
-  async create(data: CreatePlanRequest, token: string): Promise<Plan> {
+  async create(data: CreatePlanRequest): Promise<Plan> {  // Removed token parameter
     const response = await fetch(`${API_URL}/plans`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        // Authorization header removed
       },
       body: JSON.stringify(data),
     });
@@ -116,13 +112,11 @@ export const plans = {
 };
 
 /**
- * Runs API
+ * Runs API - Auth tokens removed for easier deployment
  */
 export const runs = {
-  async getAll(token: string): Promise<Run[]> {
-    const response = await fetch(`${API_URL}/runs`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  async getAll(): Promise<Run[]> {  // Removed token parameter
+    const response = await fetch(`${API_URL}/runs`);  // Removed Authorization header
 
     if (!response.ok) {
       throw new APIError(response.status, 'Failed to fetch runs');
@@ -131,10 +125,8 @@ export const runs = {
     return response.json();
   },
 
-  async getForPlan(planId: string, token: string): Promise<Run[]> {
-    const response = await fetch(`${API_URL}/plans/${planId}/runs`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  async getForPlan(planId: string): Promise<Run[]> {  // Removed token parameter
+    const response = await fetch(`${API_URL}/plans/${planId}/runs`);  // Removed Authorization header
 
     if (!response.ok) {
       throw new APIError(response.status, 'Failed to fetch runs for plan');
@@ -143,12 +135,12 @@ export const runs = {
     return response.json();
   },
 
-  async create(planId: string, data: CreateRunRequest, token: string): Promise<Run> {
+  async create(planId: string, data: CreateRunRequest): Promise<Run> {  // Removed token parameter
     const response = await fetch(`${API_URL}/plans/${planId}/runs`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        // Authorization header removed
       },
       body: JSON.stringify(data),
     });
@@ -163,13 +155,11 @@ export const runs = {
 };
 
 /**
- * Workouts API
+ * Workouts API - Auth tokens removed for easier deployment
  */
 export const workouts = {
-  async getForPlan(planId: string, token: string): Promise<Workout[]> {
-    const response = await fetch(`${API_URL}/plans/${planId}/workouts`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+  async getForPlan(planId: string): Promise<Workout[]> {  // Removed token parameter
+    const response = await fetch(`${API_URL}/plans/${planId}/workouts`);  // Removed Authorization header
 
     if (!response.ok) {
       throw new APIError(response.status, 'Failed to fetch workouts');
@@ -178,12 +168,12 @@ export const workouts = {
     return response.json();
   },
 
-  async create(planId: string, data: CreateWorkoutRequest, token: string): Promise<Workout> {
+  async create(planId: string, data: CreateWorkoutRequest): Promise<Workout> {  // Removed token parameter
     const response = await fetch(`${API_URL}/plans/${planId}/workouts`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        Authorization: `Bearer ${token}`,
+        // Authorization header removed
       },
       body: JSON.stringify(data),
     });
@@ -198,14 +188,14 @@ export const workouts = {
 };
 
 /**
- * PDF Import API
+ * PDF Import API - Auth tokens removed for easier deployment
  */
 export const pdf = {
   async upload(
     file: File,
     planId: string,
-    planStartDate: string,
-    token: string
+    planStartDate: string
+    // token: string  // Removed token parameter
   ): Promise<{ status: string; workouts_created: number; workouts_failed: number; plan_id: string }> {
     const formData = new FormData();
     formData.append('file', file);
@@ -214,7 +204,7 @@ export const pdf = {
       `${API_URL}/import/pdf?plan_id=${encodeURIComponent(planId)}&plan_start_date=${encodeURIComponent(planStartDate)}`,
       {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        // headers: { Authorization: `Bearer ${token}` },  // Authorization header removed
         body: formData,
       }
     );
@@ -256,7 +246,7 @@ export const strava = {
     return response.json();
   },
 
-  async sync(userId: string, planId: string, token: string): Promise<{
+  async sync(userId: string, planId: string): Promise<{  // Removed token parameter
     status: string;
     runs_imported: number;
     plan_id: string;
@@ -265,7 +255,7 @@ export const strava = {
       `${API_URL}/strava/sync?user_id=${userId}&plan_id=${planId}`,
       {
         method: 'POST',
-        headers: { Authorization: `Bearer ${token}` },
+        // headers: { Authorization: `Bearer ${token}` },  // Authorization header removed
       }
     );
 

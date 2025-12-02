@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { auth } from '../api';
+// import { auth } from '../api';  // Auth disabled
 import { useStore } from '../store';
 
 interface LoginProps {
@@ -21,20 +21,13 @@ export default function Login({ onLoginSuccess }: LoginProps) {
     setLoading(true);
 
     try {
-      if (isLogin) {
-        const response = await auth.login({ email, password });
-        setUser({
-          id: parseInt(response.user_id) || 1,
-          email: email,
-          token: response.token,
-        });
-        onLoginSuccess();
-      } else {
-        await auth.register({ email, password });
-        setError('Registration successful! Please login.');
-        setIsLogin(true);
-        setPassword('');
-      }
+      // Auth disabled - simulate login
+      setUser({
+        id: 1,
+        email: email,
+        token: 'guest',
+      });
+      onLoginSuccess();
     } catch (err: any) {
       setError(err.message || 'An error occurred');
     } finally {

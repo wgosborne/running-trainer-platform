@@ -8,7 +8,7 @@ interface ImportPDFProps {
 }
 
 export default function ImportPDF({ onNavigate }: ImportPDFProps) {
-  const user = useStore((state) => state.user);
+  // const user = useStore((state) => state.user);  // Auth removed
   const plans = useStore((state) => state.plans);
   const setPlans = useStore((state) => state.setPlans);
 
@@ -25,10 +25,10 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
   }, []);
 
   const loadPlans = async () => {
-    if (!user?.token) return;
+    // if (!user?.token) return;  // Auth removed for easier deployment
 
     try {
-      const data = await plansApi.getAll(user.token);
+      const data = await plansApi.getAll();  // Removed token parameter
       setPlans(data);
       if (data.length > 0 && selectedPlanId === '') {
         setSelectedPlanId(data[0].id);
@@ -61,7 +61,7 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!file || !user?.token || !selectedPlanId || !planStartDate) {
+    if (!file || !selectedPlanId || !planStartDate) {  // Removed !user?.token check
       setError('Please select a file, plan, and start date');
       return;
     }
@@ -75,8 +75,8 @@ export default function ImportPDF({ onNavigate }: ImportPDFProps) {
       const result = await pdfApi.upload(
         file,
         selectedPlanId,
-        planStartDate,
-        user.token
+        planStartDate
+        // user.token  // Removed token parameter
       );
       setProgress('Creating workouts...');
 

@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { useStore } from './store';
-import Login from './pages/Login';
+// import { useStore } from './store';  // Auth commented out for easier deployment
+// import Login from './pages/Login';  // Auth commented out for easier deployment
 import Dashboard from './pages/Dashboard';
 import PlanDetail from './pages/PlanDetail';
 import ImportPDF from './pages/ImportPDF';
@@ -9,8 +9,8 @@ import StravaAuth from './pages/StravaAuth';
 type Page = 'login' | 'dashboard' | 'plan-detail' | 'import-pdf' | 'strava-auth';
 
 function App() {
-  const user = useStore((state) => state.user);
-  const [currentPage, setCurrentPage] = useState<Page>('login');
+  // const user = useStore((state) => state.user);  // Auth commented out for easier deployment
+  const [currentPage, setCurrentPage] = useState<Page>('dashboard');  // Changed from 'login' to 'dashboard'
   const [selectedPlanId, setSelectedPlanId] = useState<string | null>(null);
 
   const handleNavigate = (page: string, planId?: string) => {
@@ -20,14 +20,15 @@ function App() {
     }
   };
 
-  const handleLoginSuccess = () => {
-    setCurrentPage('dashboard');
-  };
+  // const handleLoginSuccess = () => {  // Auth commented out for easier deployment
+  //   setCurrentPage('dashboard');
+  // };
 
+  // AUTH COMMENTED OUT - Direct access to plans without login
   // If user is not logged in, always show login page
-  if (!user) {
-    return <Login onLoginSuccess={handleLoginSuccess} />;
-  }
+  // if (!user) {
+  //   return <Login onLoginSuccess={handleLoginSuccess} />;
+  // }
 
   // Render current page based on state
   switch (currentPage) {

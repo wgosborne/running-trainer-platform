@@ -31,13 +31,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   }, []);
 
   const loadPlans = async () => {
-    if (!user?.token) return;
+    // if (!user?.token) return;  // Auth removed for easier deployment
 
     setLoading(true);
     setError('');
 
     try {
-      const data = await plansApi.getAll(user.token);
+      const data = await plansApi.getAll();  // Removed token parameter
       setPlans(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load plans');
@@ -48,13 +48,13 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
   const handleCreatePlan = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.token) return;
+    // if (!user?.token) return;  // Auth removed for easier deployment
 
     setLoading(true);
     setError('');
 
     try {
-      await plansApi.create(newPlan, user.token);
+      await plansApi.create(newPlan);  // Removed token parameter
       await loadPlans();
       setShowCreateForm(false);
       setNewPlan({ name: '', description: '', start_date: '', end_date: '' });
@@ -66,7 +66,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
   };
 
   const handleStravaSync = async () => {
-    if (!user?.token || plans.length === 0) {
+    if (plans.length === 0) {  // Removed user?.token check
       setSyncMessage('Please create a plan first');
       return;
     }
@@ -76,9 +76,9 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
 
     try {
       const result = await strava.sync(
-        user.id.toString(),
-        plans[0].id,
-        user.token
+        user?.id.toString() || '1',  // Default user ID if not available
+        plans[0].id
+        // user.token  // Removed token parameter
       );
       setSyncMessage(`✓ Synced ${result.runs_imported} runs from Strava`);
     } catch (err: any) {
@@ -95,7 +95,7 @@ export default function Dashboard({ onNavigate }: DashboardProps) {
       <div className="max-w-7xl mx-auto p-6">
         <div className="mb-8 bg-white p-6 rounded-2xl shadow-lg border-2 border-spring-200">
           <h1 className="text-4xl font-bold text-spring-700">
-            Welcome, {user?.email}
+            Welcome{user?.email ? `, ${user.email}` : ''}
           </h1>
           <p className="text-gray-600 mt-2 text-lg">Manage your training plans and track your progress</p>
         </div>

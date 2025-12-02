@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { plans as plansApi, runs as runsApi, workouts as workoutsApi } from '../api';
-import { useStore } from '../store';
+// import { useStore } from '../store';  // Auth removed
 import { Plan, Run, Workout } from '../types';
 import Header from '../components/Header';
 import RunList from '../components/RunList';
@@ -13,7 +13,7 @@ interface PlanDetailProps {
 }
 
 export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
-  const user = useStore((state) => state.user);
+  // const user = useStore((state) => state.user);  // Auth removed
 
   const [plan, setPlan] = useState<Plan | null>(null);
   const [runs, setRuns] = useState<Run[]>([]);
@@ -33,16 +33,16 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
   }, [planId]);
 
   const loadPlanData = async () => {
-    if (!user?.token) return;
+    // if (!user?.token) return;  // Auth removed for easier deployment
 
     setLoading(true);
     setError('');
 
     try {
       const [planData, runsData, workoutsData] = await Promise.all([
-        plansApi.getOne(planId, user.token),
-        runsApi.getForPlan(planId, user.token),
-        workoutsApi.getForPlan(planId, user.token),
+        plansApi.getOne(planId),  // Removed token parameter
+        runsApi.getForPlan(planId),  // Removed token parameter
+        workoutsApi.getForPlan(planId),  // Removed token parameter
       ]);
 
       setPlan(planData);
@@ -57,7 +57,7 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
 
   const handleAddRun = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user?.token) return;
+    // if (!user?.token) return;  // Auth removed for easier deployment
 
     setLoading(true);
     setError('');
@@ -69,8 +69,8 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
           distance_miles: parseFloat(newRun.distance_miles),
           pace_sec_per_mile: parseInt(newRun.pace_sec_per_mile),
           date: newRun.date,
-        },
-        user.token
+        }
+        // user.token  // Removed token parameter
       );
 
       await loadPlanData();
