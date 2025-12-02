@@ -1,0 +1,10 @@
+{
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/assets/*"]
+  },
+  "routes": [],
+  "globalHeaders": {
+    "cache-control": "no-cache, no-store, must-revalidate"
+  }
+}
