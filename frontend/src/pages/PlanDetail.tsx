@@ -111,75 +111,69 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
 
   if (loading && !plan) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-spring-50 to-sky-50">
+      <div className="min-h-screen bg-gray-50">
         <Header onNavigate={onNavigate} />
         <div className="max-w-6xl mx-auto p-6 text-center">
-          <div className="text-spring-600 text-lg">Loading plan...</div>
+          <div className="text-gray-600 text-lg">Loading plan...</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-spring-50 to-sky-50">
+    <div className="min-h-screen bg-gray-50">
       <Header onNavigate={onNavigate} />
 
       <div className="max-w-7xl mx-auto p-6">
         <button
           onClick={() => onNavigate('dashboard')}
-          className="text-spring-600 hover:text-spring-700 font-semibold mb-4 flex items-center gap-2 transition-colors"
+          className="text-primary-600 hover:text-primary-700 font-medium mb-4 flex items-center gap-2 transition-colors"
         >
           <span>←</span> Back to Dashboard
         </button>
 
         {plan && (
           <>
-            <div className="bg-white p-8 rounded-2xl shadow-lg mb-6 border-2 border-spring-200">
-              <h1 className="text-4xl font-bold text-gray-800 mb-4">
+            <div className="bg-white p-8 rounded-lg shadow-sm mb-6 border border-gray-200">
+              <h1 className="text-3xl font-bold text-gray-900 mb-4">
                 {plan.name}
               </h1>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
                 <div>
                   <span className="text-sm font-medium text-gray-600">Status</span>
-                  <div className="text-lg font-semibold text-spring-700 capitalize">
+                  <div className="text-lg font-semibold text-gray-900 capitalize">
                     {plan.status}
                   </div>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Start Date</span>
-                  <div className="text-lg font-semibold text-gray-800">
+                  <div className="text-lg font-semibold text-gray-900">
                     {new Date(plan.start_date).toLocaleDateString()}
                   </div>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">End Date</span>
-                  <div className="text-lg font-semibold text-gray-800">
+                  <div className="text-lg font-semibold text-gray-900">
                     {new Date(plan.end_date).toLocaleDateString()}
                   </div>
                 </div>
                 <div>
                   <span className="text-sm font-medium text-gray-600">Progress</span>
-                  <div className="text-lg font-semibold text-spring-600">
-                    {calculateProgress()}% complete
+                  <div className="text-lg font-semibold text-primary-600">
+                    {calculateProgress()}%
                   </div>
                 </div>
               </div>
-              <div className="mt-4 bg-spring-100 rounded-full h-6 overflow-hidden">
+              <div className="mt-4 bg-gray-200 rounded-full h-3 overflow-hidden">
                 <div
-                  className="bg-gradient-to-r from-spring-500 to-spring-600 h-6 rounded-full transition-all duration-500 flex items-center justify-end pr-3"
+                  className="bg-primary-600 h-3 rounded-full transition-all duration-500"
                   style={{ width: `${calculateProgress()}%` }}
-                >
-                  {calculateProgress() > 10 && (
-                    <span className="text-white text-xs font-bold">
-                      {calculateProgress()}%
-                    </span>
-                  )}
-                </div>
+                />
               </div>
             </div>
 
             {error && (
-              <div className="bg-coral-50 border-2 border-coral-400 text-coral-700 p-4 rounded-lg mb-6">
+              <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
                 {error}
               </div>
             )}
@@ -187,26 +181,26 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
             <div className="mb-6 flex flex-wrap gap-3">
               <button
                 onClick={() => setShowAddRun(!showAddRun)}
-                className="bg-spring-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-spring-600 transition-colors shadow-md hover:shadow-lg"
+                className="bg-primary-600 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
               >
-                {showAddRun ? '✕ Cancel' : '+ Log Run'}
+                {showAddRun ? 'Cancel' : 'Log Run'}
               </button>
 
               <button
                 onClick={() => onNavigate('import-pdf')}
-                className="bg-sky-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-sky-600 transition-colors shadow-md hover:shadow-lg"
+                className="bg-white text-gray-700 border border-gray-300 px-5 py-2.5 rounded-md text-sm font-medium hover:bg-gray-50 hover:border-primary-500 transition-colors"
               >
-                📄 Import Workouts
+                Import Workouts
               </button>
             </div>
 
             {showAddRun && (
-              <div className="bg-white p-6 rounded-2xl shadow-lg mb-6 border-2 border-spring-200">
-                <h2 className="text-2xl font-bold text-spring-700 mb-4">Log a Run</h2>
+              <div className="bg-white p-6 rounded-lg shadow-sm mb-6 border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">Log a Run</h2>
                 <form onSubmit={handleAddRun} className="space-y-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Distance (miles)
                       </label>
                       <input
@@ -216,13 +210,13 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
                         onChange={(e) =>
                           setNewRun({ ...newRun, distance_miles: e.target.value })
                         }
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Pace (sec/mile)
                       </label>
                       <input
@@ -231,14 +225,14 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
                         onChange={(e) =>
                           setNewRun({ ...newRun, pace_sec_per_mile: e.target.value })
                         }
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         placeholder="e.g., 480 for 8:00/mi"
                         required
                       />
                     </div>
 
                     <div>
-                      <label className="block text-sm font-semibold text-gray-700 mb-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
                         Date
                       </label>
                       <input
@@ -247,7 +241,7 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
                         onChange={(e) =>
                           setNewRun({ ...newRun, date: e.target.value })
                         }
-                        className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500"
+                        className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                         required
                       />
                     </div>
@@ -256,7 +250,7 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
                   <button
                     type="submit"
                     disabled={loading}
-                    className="bg-spring-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-spring-600 disabled:bg-gray-400 transition-colors shadow-md"
+                    className="bg-primary-600 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-primary-700 disabled:bg-gray-400 transition-colors"
                   >
                     {loading ? 'Adding...' : 'Add Run'}
                   </button>
@@ -267,17 +261,16 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
             {/* Calendar View */}
             <div className="mb-8">
               {workouts.length === 0 ? (
-                <div className="bg-white p-12 rounded-2xl shadow-lg text-center border-2 border-spring-200">
-                  <div className="text-6xl mb-4">📅</div>
-                  <h3 className="text-2xl font-bold text-gray-700 mb-2">
+                <div className="bg-white p-12 rounded-lg shadow-sm text-center border border-gray-200">
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
                     No Workouts Yet
                   </h3>
                   <p className="text-gray-600 mb-6">
-                    Import a PDF to add workouts to your training plan.
+                    Import a PDF to add workouts to your training plan
                   </p>
                   <button
                     onClick={() => onNavigate('import-pdf')}
-                    className="bg-spring-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-spring-600 transition-colors shadow-md"
+                    className="bg-primary-600 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-primary-700 transition-colors"
                   >
                     Import Workouts
                   </button>
@@ -295,8 +288,8 @@ export default function PlanDetail({ planId, onNavigate }: PlanDetailProps) {
 
             {/* Runs Summary */}
             {runs.length > 0 && (
-              <div className="bg-white p-6 rounded-2xl shadow-lg border-2 border-spring-200">
-                <h2 className="text-2xl font-bold text-spring-700 mb-4">
+              <div className="bg-white p-6 rounded-lg shadow-sm border border-gray-200">
+                <h2 className="text-xl font-semibold text-gray-900 mb-4">
                   Recent Runs ({runs.length})
                 </h2>
                 <RunList runs={runs} formatPace={formatPace} />

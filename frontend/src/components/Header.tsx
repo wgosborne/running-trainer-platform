@@ -14,33 +14,32 @@ export default function Header({ onNavigate }: HeaderProps) {
   };
 
   return (
-    <header className="bg-gradient-to-r from-spring-600 to-spring-500 text-white shadow-lg">
+    <header className="bg-white border-b border-gray-200">
       <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-        <div className="flex items-center space-x-6">
+        <div className="flex items-center space-x-8">
           <button
             onClick={() => onNavigate('dashboard')}
-            className="text-2xl font-bold hover:text-spring-100 transition-colors flex items-center gap-2"
+            className="text-xl font-semibold text-gray-900 hover:text-primary-600 transition-colors"
           >
-            <span className="text-3xl">🏃</span>
-            <span>Running Tracker</span>
+            Running Tracker
           </button>
 
-          <nav className="hidden md:flex space-x-2">
+          <nav className="hidden md:flex space-x-1">
             <button
               onClick={() => onNavigate('dashboard')}
-              className="px-4 py-2 rounded-lg hover:bg-spring-700 transition-colors font-medium"
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
             >
               Dashboard
             </button>
             <button
               onClick={() => onNavigate('import-pdf')}
-              className="px-4 py-2 rounded-lg hover:bg-spring-700 transition-colors font-medium"
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
             >
               Import PDF
             </button>
             <button
               onClick={() => onNavigate('strava-auth')}
-              className="px-4 py-2 rounded-lg hover:bg-spring-700 transition-colors font-medium"
+              className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
             >
               Strava
             </button>
@@ -50,10 +49,10 @@ export default function Header({ onNavigate }: HeaderProps) {
         <div className="flex items-center space-x-4">
           {user && (
             <>
-              <span className="text-sm font-medium text-spring-100">{user.email}</span>
+              <span className="text-sm text-gray-600">{user.email}</span>
               <button
                 onClick={handleLogout}
-                className="bg-spring-700 hover:bg-spring-800 px-5 py-2 rounded-lg text-sm font-semibold transition-colors shadow-md"
+                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-primary-600 hover:bg-primary-50 rounded-md transition-colors"
               >
                 Logout
               </button>

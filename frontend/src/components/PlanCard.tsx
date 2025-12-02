@@ -9,11 +9,11 @@ export default function PlanCard({ plan, onClick }: PlanCardProps) {
   const getStatusColor = (status: string) => {
     switch (status.toLowerCase()) {
       case 'active':
-        return 'bg-spring-100 text-spring-800 border-spring-300';
+        return 'bg-primary-50 text-primary-700 border-primary-200';
       case 'completed':
-        return 'bg-sky-100 text-sky-800 border-sky-300';
+        return 'bg-gray-100 text-gray-700 border-gray-200';
       case 'planning':
-        return 'bg-sunshine-100 text-sunshine-800 border-sunshine-300';
+        return 'bg-gray-50 text-gray-600 border-gray-200';
       default:
         return 'bg-gray-100 text-gray-800 border-gray-300';
     }
@@ -32,12 +32,12 @@ export default function PlanCard({ plan, onClick }: PlanCardProps) {
   return (
     <div
       onClick={onClick}
-      className="bg-white p-6 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer border-2 border-spring-200 hover:border-spring-400 hover:scale-105"
+      className="bg-white p-6 rounded-lg shadow-sm hover:shadow-md transition-all duration-200 cursor-pointer border border-gray-200 hover:border-primary-500"
     >
-      <div className="flex justify-between items-start mb-4">
-        <h3 className="text-xl font-bold text-gray-800">{plan.name}</h3>
+      <div className="flex justify-between items-start mb-3">
+        <h3 className="text-lg font-semibold text-gray-900">{plan.name}</h3>
         <span
-          className={`px-3 py-1 rounded-full text-xs font-semibold border-2 ${getStatusColor(
+          className={`px-3 py-1 rounded-full text-xs font-medium border ${getStatusColor(
             plan.status
           )}`}
         >
@@ -46,34 +46,31 @@ export default function PlanCard({ plan, onClick }: PlanCardProps) {
       </div>
 
       {plan.description && (
-        <p className="text-sm text-gray-600 mb-4 italic line-clamp-2 bg-spring-50 p-3 rounded-lg border-l-4 border-spring-400">
-          "{plan.description}"
+        <p className="text-sm text-gray-600 mb-4 line-clamp-2">
+          {plan.description}
         </p>
       )}
 
-      <div className="text-sm text-gray-700 space-y-2 mb-4">
+      <div className="text-sm text-gray-600 space-y-1.5 mb-4">
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-spring-700">📅 Duration:</span>
-          <span>{Math.ceil(plan.duration_days / 7)} week{Math.ceil(plan.duration_days / 7) !== 1 ? 's' : ''} ({plan.duration_days} days)</span>
+          <span className="font-medium text-gray-700">Duration:</span>
+          <span>{Math.ceil(plan.duration_days / 7)} week{Math.ceil(plan.duration_days / 7) !== 1 ? 's' : ''}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-spring-700">🏁 Start:</span>
+          <span className="font-medium text-gray-700">Start:</span>
           <span>{formatDate(plan.start_date)}</span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="font-semibold text-spring-700">🎯 End:</span>
+          <span className="font-medium text-gray-700">End:</span>
           <span>{formatDate(plan.end_date)}</span>
         </div>
       </div>
 
-      <div className="text-xs text-gray-500 pt-3 border-t border-spring-200 space-y-1">
-        <p>Created: {formatDate(plan.created_at)}</p>
-        {plan.updated_at !== plan.created_at && (
-          <p>Updated: {formatDate(plan.updated_at)}</p>
-        )}
+      <div className="text-xs text-gray-500 pt-3 border-t border-gray-100">
+        <p>Created {formatDate(plan.created_at)}</p>
       </div>
 
-      <div className="mt-4 pt-3 border-t border-spring-200 text-spring-600 text-sm font-bold hover:text-spring-700 flex items-center justify-between">
+      <div className="mt-4 pt-3 border-t border-gray-100 text-primary-600 text-sm font-medium hover:text-primary-700 flex items-center justify-between">
         <span>View details</span>
         <span className="text-lg">→</span>
       </div>

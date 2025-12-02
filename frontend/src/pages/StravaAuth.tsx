@@ -95,87 +95,86 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-spring-50 to-sky-50">
+    <div className="min-h-screen bg-gray-50">
       <Header onNavigate={onNavigate} />
 
       <div className="max-w-3xl mx-auto p-6">
         <button
           onClick={() => onNavigate('dashboard')}
-          className="text-spring-600 hover:text-spring-700 font-semibold mb-4 flex items-center gap-2 transition-colors"
+          className="text-primary-600 hover:text-primary-700 font-medium mb-4 flex items-center gap-2 transition-colors"
         >
           <span>←</span> Back to Dashboard
         </button>
 
-        <div className="bg-white p-10 rounded-2xl shadow-2xl border-2 border-spring-200">
-          <div className="text-center mb-8">
-            <div className="text-6xl mb-4">🏃</div>
-            <h1 className="text-4xl font-bold text-spring-700 mb-3">
+        <div className="bg-white p-10 rounded-lg shadow-sm border border-gray-200">
+          <div className="mb-8">
+            <h1 className="text-3xl font-bold text-gray-900 mb-3">
               Strava Integration
             </h1>
-            <p className="text-gray-600 text-lg">
+            <p className="text-gray-600">
               Connect your Strava account to automatically sync your runs to your
-              training plan.
+              training plan
             </p>
           </div>
 
           {error && (
-            <div className="bg-coral-50 border-2 border-coral-400 text-coral-700 p-4 rounded-lg mb-6">
+            <div className="bg-red-50 border border-red-200 text-red-700 p-4 rounded-lg mb-6">
               {error}
             </div>
           )}
 
           {message && (
-            <div className={`p-4 rounded-lg mb-6 border-2 ${
-              message.includes('✓')
-                ? 'bg-spring-50 border-spring-400 text-spring-700'
-                : 'bg-sky-50 border-sky-400 text-sky-700'
+            <div className={`p-4 rounded-lg mb-6 border ${
+              message.includes('✓') || message.includes('Successfully')
+                ? 'bg-primary-50 border-primary-200 text-primary-700'
+                : 'bg-blue-50 border-blue-200 text-blue-700'
             }`}>
               {message}
             </div>
           )}
 
-          <div className="space-y-8">
-            <div className="bg-peach-50 p-6 rounded-xl border-2 border-peach-200">
+          <div className="space-y-6">
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-peach-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center font-semibold text-sm">
                   1
                 </div>
-                <h2 className="text-2xl font-bold text-peach-800">Authorize</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Authorize</h2>
               </div>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-600 mb-4">
                 Click the button below to authorize this app to access your Strava
-                activities.
+                activities
               </p>
               <button
                 onClick={handleGetAuthUrl}
                 disabled={loading || isAuthorized}
-                className="bg-peach-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-peach-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-md"
+                className="bg-primary-600 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
                 {isAuthorized
-                  ? '✓ Authorized with Strava'
-                  : '🔗 Authorize with Strava'}
+                  ? 'Authorized with Strava'
+                  : 'Authorize with Strava'}
               </button>
             </div>
 
-            <div className="bg-sky-50 p-6 rounded-xl border-2 border-sky-200">
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
               <div className="flex items-center gap-3 mb-4">
-                <div className="w-10 h-10 bg-sky-500 text-white rounded-full flex items-center justify-center font-bold text-lg">
+                <div className="w-8 h-8 bg-gray-900 text-white rounded-full flex items-center justify-center font-semibold text-sm">
                   2
                 </div>
-                <h2 className="text-2xl font-bold text-sky-800">Sync Runs</h2>
+                <h2 className="text-xl font-semibold text-gray-900">Sync Runs</h2>
               </div>
-              <p className="text-gray-700 mb-4">
-                Select a training plan and sync your recent Strava runs.
+              <p className="text-gray-600 mb-4">
+                Select a training plan and sync your recent Strava runs
               </p>
 
               <div className="mb-4">
-                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
                   Select Training Plan
                 </label>
                 <select
                   value={selectedPlanId}
                   onChange={(e) => setSelectedPlanId(e.target.value)}
-                  className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-spring-500 focus:border-spring-500"
+                  className="w-full px-4 py-2.5 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 >
                   <option value={''}>-- Select a plan --</option>
                   {plans.map((plan) => (
@@ -185,11 +184,11 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
                   ))}
                 </select>
                 {plans.length === 0 && (
-                  <p className="text-sm text-gray-600 mt-2 bg-sunshine-50 p-3 rounded-lg border-l-4 border-sunshine-400">
+                  <p className="text-sm text-gray-600 mt-2">
                     No plans available.{' '}
                     <button
                       onClick={() => onNavigate('dashboard')}
-                      className="text-spring-600 hover:text-spring-700 font-semibold"
+                      className="text-primary-600 hover:text-primary-700 font-medium"
                     >
                       Create a plan first
                     </button>
@@ -200,31 +199,31 @@ export default function StravaAuth({ onNavigate }: StravaAuthProps) {
               <button
                 onClick={handleSync}
                 disabled={loading || selectedPlanId === ''}
-                className="bg-spring-500 text-white px-6 py-3 rounded-lg font-semibold hover:bg-spring-600 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors shadow-md"
+                className="bg-primary-600 text-white px-5 py-2.5 rounded-md text-sm font-medium hover:bg-primary-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
               >
-                {loading ? '⏳ Syncing...' : '🔄 Sync Now'}
+                {loading ? 'Syncing...' : 'Sync Now'}
               </button>
             </div>
 
-            <div className="bg-spring-50 p-6 rounded-xl border-2 border-spring-200">
-              <h2 className="text-2xl font-bold text-spring-800 mb-4 flex items-center gap-2">
-                <span>ℹ️</span> How it works
+            <div className="bg-gray-50 p-6 rounded-lg border border-gray-200">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">
+                How it works
               </h2>
-              <ul className="space-y-3 text-gray-700">
-                <li className="flex items-start gap-3">
-                  <span className="text-spring-600 font-bold">→</span>
+              <ul className="space-y-2 text-gray-600 text-sm">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary-600 font-bold mt-0.5">•</span>
                   <span>Authorize this app to access your Strava activities</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-spring-600 font-bold">→</span>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary-600 font-bold mt-0.5">•</span>
                   <span>Recent runs from Strava will be synced to your selected plan</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-spring-600 font-bold">→</span>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary-600 font-bold mt-0.5">•</span>
                   <span>Runs are matched by date and automatically added</span>
                 </li>
-                <li className="flex items-start gap-3">
-                  <span className="text-spring-600 font-bold">→</span>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary-600 font-bold mt-0.5">•</span>
                   <span>You can sync as many times as you want</span>
                 </li>
               </ul>
