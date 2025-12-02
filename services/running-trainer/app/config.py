@@ -82,7 +82,7 @@ class Settings(BaseSettings):
 
     # CORS configuration
     ALLOWED_ORIGINS: str = Field(
-        default="*",
+        default="https://*.azurestaticapps.net,http://localhost:5173,http://localhost:5174,http://localhost:3000",
         description="Comma-separated list of allowed CORS origins"
     )
 

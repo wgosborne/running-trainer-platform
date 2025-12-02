@@ -48,24 +48,24 @@ services:
       - app_network
     restart: unless-stopped
 
-  # Auth Service
-  auth:
-    build:
-      context: ./services/auth
-      dockerfile: Dockerfile
-    container_name: auth_service
-    environment:
-      JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
-    ports:
-      - "8004:8000"
-    volumes:
-      # Mount source code for hot reload during development
-      - ./services/auth/app:/app
-      # Persist SQLite database
-      - auth_data:/app/data
-    networks:
-      - app_network
-    restart: unless-stopped
+  # Auth Service - COMMENTED OUT FOR EASIER DEPLOYMENT
+  # auth:
+  #   build:
+  #     context: ./services/auth
+  #     dockerfile: Dockerfile
+  #   container_name: auth_service
+  #   environment:
+  #     JWT_SECRET: ${JWT_SECRET:-dev-secret-change-in-production}
+  #   ports:
+  #     - "8004:8000"
+  #   volumes:
+  #     # Mount source code for hot reload during development
+  #     - ./services/auth/app:/app
+  #     # Persist SQLite database
+  #     - auth_data:/app/data
+  #   networks:
+  #     - app_network
+  #   restart: unless-stopped
 
   # PDF Import Service
   pdf:
@@ -117,7 +117,7 @@ services:
     container_name: api_gateway_service
     environment:
       RUNNING_TRAINER_URL: http://running-trainer:8000
-      AUTH_URL: http://auth:8000
+      # AUTH_URL: http://auth:8000  # Auth service commented out
       PDF_URL: http://pdf:8000
       STRAVA_URL: http://strava:8000
     ports:
@@ -127,7 +127,7 @@ services:
       - ./services/api-gateway/app:/app
     depends_on:
       - running-trainer
-      - auth
+      # - auth  # Auth service commented out
       - pdf
       - strava
     networks:
@@ -139,9 +139,9 @@ services:
     build:
       context: ./frontend
       dockerfile: Dockerfile
+      args:
+        VITE_API_URL: http://localhost:8000
     container_name: running_tracker_frontend
-    environment:
-      VITE_API_URL: http://localhost:8000
     ports:
       - "5173:80"
     depends_on:
@@ -154,8 +154,8 @@ services:
 volumes:
   postgres_data:
     driver: local
-  auth_data:
-    driver: local
+  # auth_data:  # Auth service commented out
+  #   driver: local
 
 # Network for service communication
 networks:

@@ -21,7 +21,7 @@ app = FastAPI(title="Running Tracker API Gateway")
 # Load allowed origins from environment variable, or use defaults
 allowed_origins = os.getenv(
     "ALLOWED_ORIGINS",
-    "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5175,http://127.0.0.1:5175"
+    "http://localhost:5173,http://127.0.0.1:5173,http://localhost:5174,http://127.0.0.1:5174,http://localhost:5175,http://127.0.0.1:5175"
 ).split(",")
 
 app.add_middleware(
@@ -34,7 +34,7 @@ app.add_middleware(
 
 # Load service URLs from environment
 RUNNING_TRAINER_URL = os.getenv("RUNNING_TRAINER_URL", "http://running-trainer:8000")
-AUTH_URL = os.getenv("AUTH_URL", "http://auth:8000")
+# AUTH_URL = os.getenv("AUTH_URL", "http://auth:8000")  # Auth service commented out
 PDF_URL = os.getenv("PDF_URL", "http://pdf:8000")
 STRAVA_URL = os.getenv("STRAVA_URL", "http://strava:8000")
 
@@ -98,31 +98,31 @@ def forward_request(
         raise HTTPException(status_code=503, detail=f"Service unavailable: {str(e)}")
 
 
-# Auth routes (no auth required)
-@app.post("/auth/register")
-async def register(request: Request):
-    """Forward registration request to auth service."""
-    body = await request.body()
-    return forward_request(
-        method="POST",
-        service_url=AUTH_URL,
-        path="/register",
-        headers=dict(request.headers),
-        body=body
-    )
-
-
-@app.post("/auth/login")
-async def login(request: Request):
-    """Forward login request to auth service."""
-    body = await request.body()
-    return forward_request(
-        method="POST",
-        service_url=AUTH_URL,
-        path="/login",
-        headers=dict(request.headers),
-        body=body
-    )
+# Auth routes (no auth required) - COMMENTED OUT FOR EASIER DEPLOYMENT
+# @app.post("/auth/register")
+# async def register(request: Request):
+#     """Forward registration request to auth service."""
+#     body = await request.body()
+#     return forward_request(
+#         method="POST",
+#         service_url=AUTH_URL,
+#         path="/register",
+#         headers=dict(request.headers),
+#         body=body
+#     )
+#
+#
+# @app.post("/auth/login")
+# async def login(request: Request):
+#     """Forward login request to auth service."""
+#     body = await request.body()
+#     return forward_request(
+#         method="POST",
+#         service_url=AUTH_URL,
+#         path="/login",
+#         headers=dict(request.headers),
+#         body=body
+#     )
 
 
 # Running Trainer routes - Plans

@@ -24,8 +24,8 @@ from app.exceptions import (
     NotFoundError,
     ConflictError,
     DatabaseError,
-    AuthenticationError,
-    AuthorizationError,
+    # AuthenticationError,  # Auth commented out for easier deployment
+    # AuthorizationError,   # Auth commented out for easier deployment
 )
 from app.db.init_db import init_db, check_db_health
 from app.utils.logger import get_logger, setup_logging
@@ -133,12 +133,35 @@ app.add_exception_handler(RateLimitExceeded, _rate_limit_exceeded_handler)
 # In production, set ALLOWED_ORIGINS env var to specific domains
 allowed_origins = settings.get_allowed_origins()
 
+# Support wildcard patterns for Azure Static Web Apps
+# Convert pattern like "https://*.azurestaticapps.net" to regex
+import re
+origin_patterns = []
+for origin in allowed_origins:
+    if "*" in origin:
+        # Convert wildcard to regex pattern
+        pattern = origin.replace(".", r"\.").replace("*", ".*")
+        origin_patterns.append(re.compile(f"^{pattern}$"))
+    else:
+        origin_patterns.append(origin)
+
+def is_origin_allowed(origin: str) -> bool:
+    """Check if an origin is allowed based on patterns."""
+    for pattern in origin_patterns:
+        if isinstance(pattern, re.Pattern):
+            if pattern.match(origin):
+                return True
+        elif pattern == origin or pattern == "*":
+            return True
+    return False
+
 # Log CORS configuration for debugging
 logger.info(f"CORS allowed origins: {allowed_origins}")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=allowed_origins,
+    allow_origin_regex=r"^https://.*\.azurestaticapps\.net$",  # Azure Static Web Apps
+    allow_origins=["http://localhost:5173", "http://localhost:5174", "http://localhost:3000"],  # Local development
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
     allow_headers=["Content-Type", "Authorization", "X-Request-ID"],
@@ -301,48 +324,49 @@ async def database_error_handler(
     )
 
 
-@app.exception_handler(AuthenticationError)
-async def authentication_error_handler(
-    request: Request,
-    exc: AuthenticationError
-) -> JSONResponse:
-    """
-    Handle AuthenticationError exceptions.
-
-    Args:
-        request: The request that caused the error
-        exc: The authentication error
-
-    Returns:
-        JSON response with error details
-    """
-    logger.warning(f"Authentication error: {exc.message}")
-    return JSONResponse(
-        status_code=status.HTTP_401_UNAUTHORIZED,
-        content=exc.to_dict()
-    )
-
-
-@app.exception_handler(AuthorizationError)
-async def authorization_error_handler(
-    request: Request,
-    exc: AuthorizationError
-) -> JSONResponse:
-    """
-    Handle AuthorizationError exceptions.
-
-    Args:
-        request: The request that caused the error
-        exc: The authorization error
-
-    Returns:
-        JSON response with error details
-    """
-    logger.warning(f"Authorization error: {exc.message}")
-    return JSONResponse(
-        status_code=status.HTTP_403_FORBIDDEN,
-        content=exc.to_dict()
-    )
+# Auth exception handlers - COMMENTED OUT FOR EASIER DEPLOYMENT
+# @app.exception_handler(AuthenticationError)
+# async def authentication_error_handler(
+#     request: Request,
+#     exc: AuthenticationError
+# ) -> JSONResponse:
+#     """
+#     Handle AuthenticationError exceptions.
+#
+#     Args:
+#         request: The request that caused the error
+#         exc: The authentication error
+#
+#     Returns:
+#         JSON response with error details
+#     """
+#     logger.warning(f"Authentication error: {exc.message}")
+#     return JSONResponse(
+#         status_code=status.HTTP_401_UNAUTHORIZED,
+#         content=exc.to_dict()
+#     )
+#
+#
+# @app.exception_handler(AuthorizationError)
+# async def authorization_error_handler(
+#     request: Request,
+#     exc: AuthorizationError
+# ) -> JSONResponse:
+#     """
+#     Handle AuthorizationError exceptions.
+#
+#     Args:
+#         request: The request that caused the error
+#         exc: The authorization error
+#
+#     Returns:
+#         JSON response with error details
+#     """
+#     logger.warning(f"Authorization error: {exc.message}")
+#     return JSONResponse(
+#         status_code=status.HTTP_403_FORBIDDEN,
+#         content=exc.to_dict()
+#     )
 
 
 @app.exception_handler(RequestValidationError)
@@ -472,3 +496,23 @@ async def root() -> Dict[str, str]:
 
 # Include API v1 routes
 app.include_router(api_v1_router)
+
+
+# ============================================================================
+# Application Entry Point (for Render deployment)
+# ============================================================================
+
+if __name__ == "__main__":
+    import uvicorn
+    import os
+
+    # Render provides PORT environment variable
+    port = int(os.getenv("PORT", 8000))
+
+    # Must bind to 0.0.0.0 for Render to route traffic
+    uvicorn.run(
+        "app.main:app",
+        host="0.0.0.0",
+        port=port,
+        log_level="info"
+    )

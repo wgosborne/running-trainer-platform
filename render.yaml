@@ -1,0 +1,52 @@
+services:
+  # Running Trainer API Service
+  - type: web
+    name: running-trainer-api
+    runtime: python
+    region: ohio  # Same region as your database
+    plan: free  # Free tier
+    rootDir: services/running-trainer  # Service directory
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /health
+    envVars:
+      # Database connection
+      - key: DATABASE_URL
+        fromDatabase:
+          name: running_plan_tracker
+          property: connectionString
+
+      # Application configuration
+      - key: APP_NAME
+        value: Running Trainer API
+
+      - key: API_VERSION
+        value: v1
+
+      - key: LOG_LEVEL
+        value: INFO
+
+      - key: DEBUG
+        value: false
+
+      - key: USE_JSON_LOGS
+        value: true
+
+      # Database pool configuration
+      - key: MAX_POOL_SIZE
+        value: 5  # Lower for free tier
+
+      - key: POOL_RECYCLE
+        value: 3600
+
+      # CORS - will allow Azure Static Web Apps
+      - key: ALLOWED_ORIGINS
+        value: https://*.azurestaticapps.net,http://localhost:5173,http://localhost:5174
+
+      # Python version
+      - key: PYTHON_VERSION
+        value: 3.11.0
+
+# Note: The database is already created and doesn't need to be in this file
+# Database name: running_plan_tracker
+# Connection string is automatically provided via DATABASE_URL environment variable
