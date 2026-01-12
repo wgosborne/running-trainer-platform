@@ -31,10 +31,13 @@ settings = get_settings()
 
 # Create SQLAlchemy engine with connection pooling
 # For Render PostgreSQL, we need to configure SSL
+# Only require SSL if not explicitly disabled in the DATABASE_URL
 connect_args = {}
 if settings.DATABASE_URL.startswith("postgresql://"):
-    # Render PostgreSQL requires SSL connections
-    connect_args = {"sslmode": "require"}
+    # Only require SSL if sslmode is not already in the URL
+    if "sslmode" not in settings.DATABASE_URL:
+        # Render PostgreSQL requires SSL connections
+        connect_args = {"sslmode": "require"}
 
 engine = create_engine(
     settings.DATABASE_URL,

@@ -27,7 +27,8 @@ services:
     container_name: running_trainer_service
     environment:
       # Database connection - uses service name 'postgres' as hostname
-      DATABASE_URL: postgresql://tracker:tracker@postgres:5432/running_tracker_dev
+      # Note: sslmode=disable for local Docker PostgreSQL
+      DATABASE_URL: postgresql://tracker:tracker@postgres:5432/running_tracker_dev?sslmode=disable
       LOG_LEVEL: INFO
       DEBUG: "False"
       APP_NAME: Running Trainer API
